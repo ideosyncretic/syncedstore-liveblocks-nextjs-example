@@ -59,14 +59,9 @@ function Demo() {
   return (
     <div className="Demo">
       <h1>
-        Liveblocks shows objects in arrays as `[object Object]` when Yjs and
-        SyncedStore are correct.
+        When updating contents of a nested array of objects, SyncedStore updates
+        store and Y.Doc correctly, but does not trigger React to re-render.
       </h1>
-      {/* <h1>
-        When updating contents of a nested array of objects (in top-level Y.Map)
-        SyncedStore updates store/Y.Doc correctly, but does not trigger React to
-        re-render
-      </h1> */}
       <h3>Stringified JSON from SyncedStore (synced to Liveblocks room):</h3>
       <pre>{JSON.stringify(state, null, 2)}</pre>
       <div>
