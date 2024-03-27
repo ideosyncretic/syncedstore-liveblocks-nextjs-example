@@ -12,22 +12,26 @@ import "./page.module.css";
 
 const yDoc = new Y.Doc();
 const store = syncedStore<{
-  arrayOfStrings: Array<string>;
   arrayOfObjects: Array<{
     id: string;
-    label: string;
+    content: string;
   }>;
-  topLevelObject: {
+  map: {
+    nestedArrayOfStrings?: Array<string>;
     nestedArrayOfObjects?: Array<{
       id: string;
-      label: string;
+      content: string;
     }>;
+    nestedMapOfObjects?: {
+      [key: string]: {
+        content: string;
+      };
+    };
   };
 }>(
   {
-    arrayOfStrings: [],
     arrayOfObjects: [],
-    topLevelObject: {},
+    map: {},
   },
   yDoc
 );
@@ -56,57 +60,83 @@ function Demo() {
     return null;
   }
 
+  if (!state.map.nestedArrayOfStrings) {
+    state.map.nestedArrayOfStrings = [];
+  }
+
+  if (!state.map.nestedArrayOfObjects) {
+    state.map.nestedArrayOfObjects = [];
+  }
+
+  if (!state.map.nestedMapOfObjects) {
+    state.map.nestedMapOfObjects = {};
+  }
+
   return (
     <div className="Demo">
-      <h1>
-        When updating contents of a nested array of objects, SyncedStore updates
-        store and Y.Doc correctly, but does not trigger React to re-render.
-      </h1>
-      <h3>Stringified JSON from SyncedStore (synced to Liveblocks room):</h3>
+      {/* <h1>
+        When nested store values change, SyncedStore and Y.Doc update correctly,
+        but React does not re-render.
+      </h1> */}
+      <h3>
+        stringified JSON <code>state</code> from SyncedStore (synced to
+        Liveblocks room):
+      </h3>
       <pre>{JSON.stringify(state, null, 2)}</pre>
       <div>
-        {/* <button onClick={() => console.log(getYjsDoc(store)?.toJSON())}>
-          Console log Yjs doc as JSON
-        </button>
-        <button
-          onClick={() => {
-            state.arrayOfStrings.push(`${faker.word.words()}`);
-          }}
-        >
-          Add string to top level array
-        </button> */}
         <button
           onClick={() => {
             state.arrayOfObjects.push({
               id: `${faker.string.uuid()}`,
-              label: `${faker.word.words()}`,
+              content: `${faker.word.words()}`,
             });
           }}
         >
-          Add object to top level array
+          Add to arrayOfObjects
         </button>
         <button
           onClick={() => {
-            if (!state.topLevelObject.nestedArrayOfObjects) {
-              state.topLevelObject.nestedArrayOfObjects = [];
-            }
-            state.topLevelObject.nestedArrayOfObjects?.push({
+            state.map.nestedArrayOfStrings?.push(`${faker.word.words()}`);
+          }}
+        >
+          Add to nestedArrayOfStrings
+        </button>
+        <button
+          onClick={() => {
+            state.map.nestedArrayOfObjects?.push({
               id: `${faker.string.uuid()}`,
-              label: `${faker.word.words()}`,
+              content: `${faker.word.words()}`,
             });
           }}
         >
-          Add object to nested array
+          Add to nestedArrayOfObjects
+        </button>
+        <button
+          onClick={() => {
+            const id = `${faker.string.uuid()}`;
+            const content = `${faker.word.words()}`;
+            if (state.map.nestedMapOfObjects !== undefined) {
+              state.map.nestedMapOfObjects[id] = {
+                content,
+              };
+            }
+          }}
+        >
+          Add to nestedMapOfObjects
         </button>
         <button
           onClick={() => {
             // Top level arrays are read-only, cannot be reassigned
-            state.arrayOfStrings.splice(0, state.arrayOfStrings.length);
             state.arrayOfObjects.splice(0, state.arrayOfObjects.length);
-            state.topLevelObject.nestedArrayOfObjects?.splice(
+            state.map.nestedArrayOfStrings?.splice(
               0,
-              state.topLevelObject.nestedArrayOfObjects.length
+              state.map.nestedArrayOfStrings.length
             );
+            state.map.nestedArrayOfObjects?.splice(
+              0,
+              state.map.nestedArrayOfObjects.length
+            );
+            state.map.nestedMapOfObjects = {};
           }}
         >
           Clear data
@@ -118,7 +148,10 @@ function Demo() {
 
 export default function Home() {
   return (
-    <RoomProvider id="codesandbox-liveblocks" initialPresence={{}}>
+    <RoomProvider
+      id="syncedstore-liveblocks-nextjs-example"
+      initialPresence={{}}
+    >
       <Demo />
     </RoomProvider>
   );
