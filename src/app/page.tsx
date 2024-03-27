@@ -60,43 +60,48 @@ function Demo() {
     return null;
   }
 
+  // Initialize nested properties
   if (!state.map.nestedArrayOfStrings) {
     state.map.nestedArrayOfStrings = [];
   }
-
   if (!state.map.nestedArrayOfObjects) {
     state.map.nestedArrayOfObjects = [];
   }
-
   if (!state.map.nestedMapOfObjects) {
     state.map.nestedMapOfObjects = {};
   }
 
   return (
     <div className="Demo">
-      {/* <h1>
-        When nested store values change, SyncedStore and Y.Doc update correctly,
-        but React does not re-render.
-      </h1> */}
       <h3>
-        stringified JSON <code>state</code> from SyncedStore (synced to
-        Liveblocks room):
+        stringified JSON <code>state</code> from SyncedStore:
       </h3>
       <pre>{JSON.stringify(state, null, 2)}</pre>
+      <h4>
+        When nested store values change, SyncedStore and Y.Doc update correctly
+        (see console logs), but React does not re-render.
+      </h4>
+
       <div>
+        Top-level updates always trigger React re-render:
         <button
           onClick={() => {
             state.arrayOfObjects.push({
               id: `${faker.string.uuid()}`,
               content: `${faker.word.words()}`,
             });
+            console.log(JSON.stringify(state, null, 2));
           }}
         >
           Add to arrayOfObjects
         </button>
+      </div>
+      <div>
+        Nested updates fail to trigger React re-render:
         <button
           onClick={() => {
             state.map.nestedArrayOfStrings?.push(`${faker.word.words()}`);
+            console.log(JSON.stringify(state, null, 2));
           }}
         >
           Add to nestedArrayOfStrings
@@ -107,6 +112,7 @@ function Demo() {
               id: `${faker.string.uuid()}`,
               content: `${faker.word.words()}`,
             });
+            console.log(JSON.stringify(state, null, 2));
           }}
         >
           Add to nestedArrayOfObjects
@@ -120,10 +126,13 @@ function Demo() {
                 content,
               };
             }
+            console.log(JSON.stringify(state, null, 2));
           }}
         >
           Add to nestedMapOfObjects
         </button>
+      </div>
+      <div>
         <button
           onClick={() => {
             // Top level arrays are read-only, cannot be reassigned
@@ -137,6 +146,7 @@ function Demo() {
               state.map.nestedArrayOfObjects.length
             );
             state.map.nestedMapOfObjects = {};
+            console.log(JSON.stringify(state, null, 2));
           }}
         >
           Clear data
